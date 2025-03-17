@@ -2,31 +2,64 @@
 <html>
 <head>
   <link rel="stylesheet" href="style.css">
-<style>
-  div {
-  background-image: url("images/green.avif");
-  width: auto;
-  height: 800px;
-  border: 15px solid rgb(68, 68, 68);
-  padding: 50px;
-  margin: 20px;
-}
+  <style>
+    div {
+      background-image: url("images/spacegrid.gif");
+      width: auto;
+      height: 800px;
+      border: 15px solid rgb(68, 68, 68);
+      padding: 50px;
+      margin: 20px;
+    }
 
-h1 {text-align: center;}
-p {text-align: center;}
-img {align-content: center;}
+    body {
+      background-color: #1a1a1a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 50px;
+    }
 
-</style> 
-<link rel="icon" type="image/x-icon" href="/images/cadiopfp.ico">
+    h1 {text-align: center;}
+    p {text-align: center;}
+    img {align-content: center;}
+  </style> 
+  <link rel="icon" type="image/x-icon" href="/images/cadiopfp.ico">
 </head>
 <body>
-  
-  <img src="images/cadio.png" alt="cadio" width="223" height="59">
-  <p style="color:rgb(255, 255, 255);"><a href="https://www.w3schools.com/">cadio</p></a> 
-<div>
-  <p style="color:rgb(255, 255, 255);"> This text is the content of the box. We have added a 50px padding, 20px margin and a 15px green border. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>
+  <script src="https://unpkg.com/cursor-effects@latest/dist/browser.js"></script>
+  <script>
+    window.addEventListener("load", (event) => {
+      new cursoreffects.rainbowCursor({
+        length: 20, 
+        colors: [
+          "#ff0000", // Red
+          "#ff9900", // Orange
+          "#ffff00", // Yellow
+          "#00ff00", // Green
+          "#00ffff", // Cyan
+          "#0000ff", // Blue
+          "#ff00ff"  // Magenta
+        ], 
+        size: 4 
+      });
+    });
+  </script>
 
+  <img src="images/cadio.png" alt="cadio" width="223" height="59" class="center">
 
+  <!-- Gallery link, closed properly -->
+  <a href="gallery.html"><img src="images/1gallery.gif" alt="Gallery"></a>
+
+  <div>
+    <p style="color:rgb(255, 255, 255);">
+      <img src="images/cadio.png" alt="cadio" width="223" height="59" class="center">
+    </p>
+  </div>
+
+  <!-- Firefox link, separate and contained -->
+  <a href="https://www.mozilla.org/en-US/firefox/"><img src="images/firefox.gif" alt="Firefox"></a>
 
 </body>
 </html>
