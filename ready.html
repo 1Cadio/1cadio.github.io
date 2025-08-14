@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Link Block Checker</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { margin-bottom: 10px; }
+    input[type="file"] { margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 8px; border: 1px solid #ccc; }
+    th { background: #ddd; }
+    .working { background: #d4edda; }
+    .blocked { background: #f8d7da; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Link Block Checker</h1>
+  <input type="file" id="fileInput" accept=".txt">
+  <table id="results">
+    <thead>
+      <tr><th>Link</th><th>Status</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const resultsTable = document.getElementById("results").querySelector("tbody");
+
+    fileInput.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const text = await file.text();
+      const urls = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.startsWith("http"));
+
+      const rows = [];
+
+      for (const url of urls) {
+        const row = document.createElement("tr");
+        const linkCell = document.createElement("td");
+        const statusCell = document.createElement("td");
+
+        linkCell.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+        statusCell.textContent = "Checking...";
+        row.appendChild(linkCell);
+        row.appendChild(statusCell);
+        resultsTable.appendChild(row);
+
+        try {
+          await fetch(url, { method: "HEAD", mode: "no-cors" });
+          statusCell.textContent = "✅ Working";
+          row.className = "working";
+          rows.unshift(row); // Move working links to top
+        } catch {
+          statusCell.textContent = "❌ Blocked or Unreachable";
+          row.className = "blocked";
+          rows.push(row); // Keep blocked links at bottom
+        }
+
+        // Re-render table
+        resultsTable.innerHTML = "";
+        rows.forEach(r => resultsTable.appendChild(r));
+      }
+    });
+  </script>
+</body>
+</html>
