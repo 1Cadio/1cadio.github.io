@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Link Block Checker</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { margin-bottom: 10px; }
+    input[type="file"] { margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 8px; border: 1px solid #ccc; }
+    th { background: #ddd; }
+    .working { background: #d4edda; }
+    .blocked { background: #f8d7da; }
+    .timeout { background: #fff3cd; } /* Added for timeout status */
+  </style>
+</head>
+<body>
+  <h1>🧪 Link Block Checker</h1>
+  <input type="file" id="fileInput" accept=".txt">
+  <table id="results">
+    <thead>
+      <tr><th>Link</th><th>Status</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const resultsTable = document.getElementById("results").querySelector("tbody");
+
+    fileInput.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const text = await file.text();
+      const urls = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.startsWith("http"));
+
+      // These arrays will hold the row elements, separated by status for sorting
+      let workingRows = [];
+      let otherRows = []; // For blocked, timed out, etc.
+
+      // Clear previous results
+      resultsTable.innerHTML = "";
+
+      for (const url of urls) {
+        const row = document.createElement("tr");
+        const linkCell = document.createElement("td");
+        const statusCell = document.createElement("td");
+
+        linkCell.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+        statusCell.textContent = "Checking...";
+        row.appendChild(linkCell);
+        row.appendChild(statusCell);
+        
+        // Temporarily add the row to show "Checking..." immediately
+        // It will be re-ordered after the fetch completes.
+        resultsTable.appendChild(row); 
+
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const TIMEOUT_MS = 5000; // 5 seconds
+
+        const timeoutId = setTimeout(() => {
+          controller.abort(); // Abort the fetch request after TIMEOUT_MS
+        }, TIMEOUT_MS);
+
+        try {
+          await fetch(url, { method: "HEAD", mode: "no-cors", signal });
+          clearTimeout(timeoutId); // Clear the timeout if fetch completes successfully
+          statusCell.textContent = "✅ Working";
+          row.className = "working";
+          workingRows.unshift(row); // Add to the front of working links
+        } catch (error) {
+          clearTimeout(timeoutId); // Clear the timeout if fetch fails for other reasons before timeout
+          if (error.name === 'AbortError') {
+            statusCell.textContent = "⚠️ Timed Out (5s)";
+            row.className = "timeout"; // Assign a specific class for timed out links
+          } else {
+            statusCell.textContent = "❌ Blocked or Unreachable";
+            row.className = "blocked";
+          }
+          otherRows.push(row); // Add to the end of other links
+        }
+
+        // Re-render the table with sorted rows after each link is processed
+        resultsTable.innerHTML = "";
+        workingRows.forEach(r => resultsTable.appendChild(r));
+        otherRows.forEach(r => resultsTable.appendChild(r));
+      }
+    });
+  </script>
+</body>
+</html>
