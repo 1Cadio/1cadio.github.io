@@ -8,7 +8,7 @@
     h1 { margin-bottom: 10px; }
     input[type="file"] { margin-bottom: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 8px; border: 1px solid #ccc; }
+    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; } /* Added text-align: left for better alignment */
     th { background: #ddd; }
     .working { background: #d4edda; }
     .blocked { background: #f8d7da; }
@@ -17,10 +17,11 @@
 </head>
 <body>
   <h1>🧪 Link Block Checker</h1>
+  <p><strong>Note:</strong> Retrieving the exact IP address of a remote server directly from client-side JavaScript (in a web browser) is generally not possible due to browser security restrictions (e.g., Same-Origin Policy, lack of direct DNS lookup APIs). To get the IP, you would typically need a server-side proxy or API to perform the lookup and return the IP to your browser script.</p>
   <input type="file" id="fileInput" accept=".txt">
   <table id="results">
     <thead>
-      <tr><th>Link</th><th>Status</th></tr>
+      <tr><th>Link</th><th>Status</th><th>IP Address</th></tr>
     </thead>
     <tbody></tbody>
   </table>
@@ -43,18 +44,48 @@
       // Clear previous results
       resultsTable.innerHTML = "";
 
+      // Asynchronous function to attempt to get the IP address (requires server-side)
+      async function getIpAddress(url) {
+        // This is a placeholder function.
+        // In a real-world scenario, you would make an AJAX request to your own
+        // backend server here. That server would then perform a DNS lookup
+        // for the given URL's hostname and return the IP address.
+        //
+        // Example of what your client-side code *might* look like if you had a server:
+        /*
+        try {
+          const hostname = new URL(url).hostname;
+          const response = await fetch(`/api/resolve-ip?hostname=${encodeURIComponent(hostname)}`);
+          if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+          }
+          const data = await response.json();
+          return data.ip || 'N/A (Server Issue)';
+        } catch (error) {
+          console.error("Error resolving IP on server:", error);
+          return 'Error (Server-side lookup failed)';
+        }
+        */
+
+        // For demonstration, since direct client-side IP lookup isn't possible,
+        // we return a placeholder string.
+        return 'Not directly available (Client-side)';
+      }
+
       for (const url of urls) {
         const row = document.createElement("tr");
         const linkCell = document.createElement("td");
         const statusCell = document.createElement("td");
+        const ipCell = document.createElement("td"); // New cell for IP Address
 
         linkCell.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
         statusCell.textContent = "Checking...";
+        ipCell.textContent = "Resolving IP..."; // Initial state for IP
         row.appendChild(linkCell);
         row.appendChild(statusCell);
-        
+        row.appendChild(ipCell); // Append the IP cell
+
         // Temporarily add the row to show "Checking..." immediately
-        // It will be re-ordered after the fetch completes.
         resultsTable.appendChild(row); 
 
         const controller = new AbortController();
@@ -65,7 +96,14 @@
           controller.abort(); // Abort the fetch request after TIMEOUT_MS
         }, TIMEOUT_MS);
 
+        let ipAddress = 'N/A'; // Default IP status
+
+        // Attempt to get IP address using the placeholder function
+        ipAddress = await getIpAddress(url);
+        ipCell.textContent = ipAddress; // Update IP cell immediately
+
         try {
+          // This fetch is for checking connectivity, not IP resolution
           await fetch(url, { method: "HEAD", mode: "no-cors", signal });
           clearTimeout(timeoutId); // Clear the timeout if fetch completes successfully
           statusCell.textContent = "✅ Working";
@@ -84,6 +122,7 @@
         }
 
         // Re-render the table with sorted rows after each link is processed
+        // This ensures "Working" links always appear at the top.
         resultsTable.innerHTML = "";
         workingRows.forEach(r => resultsTable.appendChild(r));
         otherRows.forEach(r => resultsTable.appendChild(r));
