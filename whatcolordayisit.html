@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red or Black Day</title>
+<script>
+  // Define the starting point
+  const startDate = new Date('2025-09-03'); // Wednesday (black day)
+  const startDayType = 'black'; // Starting color
+
+  function getDayType() {
+    const today = new Date();
+    const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+    // Alternate days: even difference = same as start, odd = opposite
+    const isSameAsStart = diffDays % 2 === 0;
+    return isSameAsStart ? startDayType : (startDayType === 'black' ? 'red' : 'black');
+  }
+
+  function displayDayType() {
+    const dayType = getDayType();
+    document.getElementById('dayDisplay').innerText = `Today is a ${dayType.toUpperCase()} day.`;
+    document.body.style.backgroundColor = dayType;
+    document.body.style.color = dayType === 'black' ? 'white' : 'black';
+  }
+
+  window.onload = displayDayType;
+</script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding-top: 20%;
+    font-size: 2rem;
+    transition: background-color 0.5s, color 0.5s;
+  }
+</style>
+</head>
+<body>
+  <div id="dayDisplay">Loading...</div>
+</body>
+</html>
