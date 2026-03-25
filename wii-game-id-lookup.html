@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wii Game ID Lookup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0f0f1a;
+    color: #e8e8f0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  header {
+    text-align: center;
+    padding: 30px 0 24px;
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  header h1 span {
+    color: #7c6cf8;
+  }
+
+  header p {
+    color: #888;
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+
+  .search-box {
+    display: flex;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto 28px;
+  }
+
+  input {
+    flex: 1;
+    background: #1c1c2e;
+    border: 1.5px solid #2e2e45;
+    color: #e8e8f0;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: #7c6cf8; }
+  input::placeholder { color: #555; }
+
+  button#searchBtn {
+    background: #7c6cf8;
+    color: #fff;
+    border: none;
+    padding: 13px 22px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  button#searchBtn:hover { background: #6a5ae0; }
+  button#searchBtn:disabled { background: #3a3a55; cursor: not-allowed; }
+
+  #status {
+    text-align: center;
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    min-height: 20px;
+  }
+
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: #1c1c2e;
+    border: 1.5px solid #2a2a40;
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: #7c6cf8; }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .game-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+  }
+
+  .game-meta {
+    font-size: 0.78rem;
+    color: #666;
+    margin-top: 3px;
+  }
+
+  .game-id-badge {
+    background: #2a2040;
+    color: #b09fff;
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    border: 1px solid #3d2e6e;
+  }
+
+  .label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    margin-bottom: 5px;
+  }
+
+  .path-box {
+    background: #111120;
+    border: 1px solid #252535;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .path-text {
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: #a0e0a0;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .copy-btn {
+    background: #252535;
+    color: #aaa;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { background: #7c6cf8; color: #fff; }
+  .copy-btn.copied { background: #2a5c2a; color: #7fcf7f; }
+
+  .no-results {
+    text-align: center;
+    color: #555;
+    padding: 40px 0;
+    font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Wii <span>Game ID</span> Lookup</h1>
+  <p>Search for a game and get the exact USB Loader GX file structure</p>
+</header>
+
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="e.g. Mario Kart, Zelda, Smash Bros..." />
+  <button id="searchBtn" onclick="doSearch()">Search</button>
+</div>
+
+<div id="status"></div>
+<div class="results" id="results"></div>
+
+<script>
+const PROXY = "https://api.allorigins.win/get?url=";
+const TDB_URL = "https://www.gametdb.com/games.php?system=wii&region=all&name=";
+
+async function doSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+
+  const btn = document.getElementById('searchBtn');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+  status.textContent = 'Fetching from GameTDB...';
+  results.innerHTML = '';
+
+  try {
+    const encoded = encodeURIComponent(TDB_URL + encodeURIComponent(query));
+    const res = await fetch(PROXY + encoded);
+    const json = await res.json();
+    const html = json.contents;
+
+    const games = parseGames(html);
+
+    if (games.length === 0) {
+      status.textContent = '';
+      results.innerHTML = `<div class="no-results">No games found for "<strong>${query}</strong>". Try a shorter search term.</div>`;
+    } else {
+      status.textContent = `Found ${games.length} result${games.length !== 1 ? 's' : ''}`;
+      results.innerHTML = games.map(g => buildCard(g)).join('');
+    }
+  } catch (e) {
+    status.textContent = 'Error fetching results. Try again.';
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Search';
+}
+
+function parseGames(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const rows = doc.querySelectorAll('table.gamelist tr');
+  const games = [];
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    if (cells.length < 3) return;
+
+    const idCell = cells[0]?.textContent?.trim();
+    const nameCell = cells[1]?.textContent?.trim();
+    const regionCell = cells[2]?.textContent?.trim();
+
+    if (idCell && nameCell && idCell.length >= 4) {
+      games.push({ id: idCell, name: nameCell, region: regionCell || '' });
+    }
+  });
+
+  return games.slice(0, 15);
+}
+
+function buildCard(game) {
+  const safe = game.name.replace(/[\/\\:*?"<>|]/g, '');
+  const folder = `${safe} [${game.id}]`;
+  const folderPath = `wbfs/${folder}/`;
+  const filePath = `wbfs/${folder}/${folder}.wbfs`;
+
+  return `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="game-title">${game.name}</div>
+          <div class="game-meta">Region: ${game.region}</div>
+        </div>
+        <div class="game-id-badge">${game.id}</div>
+      </div>
+
+      <div class="label">Folder</div>
+      <div class="path-box">
+        <span class="path-text">${folderPath}</span>
+        <button class="copy-btn" onclick="copyText(this, '${folderPath}')">Copy</button>
+      </div>
+
+      <div class="label">File Path</div>
+      <div class="path-box">
+        <span class="path-text">${filePath}</span>
+        <button class="copy-btn" onclick="copyText(this, '${filePath}')">Copy</button>
+      </div>
+    </div>
+  `;
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+</script>
+
+</body>
+</html>
