@@ -6,311 +6,222 @@
 <title>Wii Game ID Lookup</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: #0f0f1a;
-    color: #e8e8f0;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    min-height: 100vh;
-    padding: 20px;
-  }
-
-  header {
-    text-align: center;
-    padding: 30px 0 24px;
-  }
-
-  header h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.5px;
-  }
-
-  header h1 span {
-    color: #7c6cf8;
-  }
-
-  header p {
-    color: #888;
-    font-size: 0.9rem;
-    margin-top: 6px;
-  }
-
-  .search-box {
-    display: flex;
-    gap: 10px;
-    max-width: 600px;
-    margin: 0 auto 28px;
-  }
-
-  input {
-    flex: 1;
-    background: #1c1c2e;
-    border: 1.5px solid #2e2e45;
-    color: #e8e8f0;
-    padding: 13px 16px;
-    border-radius: 10px;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
+  body { background: #0f0f1a; color: #e8e8f0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; padding: 20px; }
+  header { text-align: center; padding: 30px 0 24px; }
+  header h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
+  header h1 span { color: #7c6cf8; }
+  header p { color: #888; font-size: 0.9rem; margin-top: 6px; }
+  .search-box { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 28px; }
+  input { flex: 1; background: #1c1c2e; border: 1.5px solid #2e2e45; color: #e8e8f0; padding: 13px 16px; border-radius: 10px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
   input:focus { border-color: #7c6cf8; }
   input::placeholder { color: #555; }
-
-  button#searchBtn {
-    background: #7c6cf8;
-    color: #fff;
-    border: none;
-    padding: 13px 22px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
-  }
-
-  button#searchBtn:hover { background: #6a5ae0; }
-  button#searchBtn:disabled { background: #3a3a55; cursor: not-allowed; }
-
-  #status {
-    text-align: center;
-    color: #777;
-    font-size: 0.9rem;
-    margin-bottom: 16px;
-    min-height: 20px;
-  }
-
-  .results {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .card {
-    background: #1c1c2e;
-    border: 1.5px solid #2a2a40;
-    border-radius: 14px;
-    padding: 18px 20px;
-    transition: border-color 0.2s;
-  }
-
+  #status { text-align: center; color: #777; font-size: 0.9rem; margin-bottom: 16px; min-height: 20px; }
+  .results { display: flex; flex-direction: column; gap: 14px; max-width: 700px; margin: 0 auto; }
+  .card { background: #1c1c2e; border: 1.5px solid #2a2a40; border-radius: 14px; padding: 18px 20px; transition: border-color 0.2s; }
   .card:hover { border-color: #7c6cf8; }
-
-  .card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  .game-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.3;
-  }
-
-  .game-meta {
-    font-size: 0.78rem;
-    color: #666;
-    margin-top: 3px;
-  }
-
-  .game-id-badge {
-    background: #2a2040;
-    color: #b09fff;
-    font-family: monospace;
-    font-size: 0.95rem;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 8px;
-    white-space: nowrap;
-    border: 1px solid #3d2e6e;
-  }
-
-  .label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #555;
-    margin-bottom: 5px;
-  }
-
-  .path-box {
-    background: #111120;
-    border: 1px solid #252535;
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .path-text {
-    font-family: monospace;
-    font-size: 0.82rem;
-    color: #a0e0a0;
-    word-break: break-all;
-    line-height: 1.5;
-  }
-
-  .copy-btn {
-    background: #252535;
-    color: #aaa;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.15s, color 0.15s;
-    flex-shrink: 0;
-  }
-
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .game-title { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.3; }
+  .game-meta { font-size: 0.78rem; color: #666; margin-top: 3px; }
+  .game-id-badge { background: #2a2040; color: #b09fff; font-family: monospace; font-size: 0.95rem; font-weight: 700; padding: 5px 12px; border-radius: 8px; white-space: nowrap; border: 1px solid #3d2e6e; }
+  .label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #555; margin-bottom: 5px; }
+  .path-box { background: #111120; border: 1px solid #252535; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .path-text { font-family: monospace; font-size: 0.82rem; color: #a0e0a0; word-break: break-all; line-height: 1.5; }
+  .copy-btn { background: #252535; color: #aaa; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; flex-shrink: 0; }
   .copy-btn:hover { background: #7c6cf8; color: #fff; }
   .copy-btn.copied { background: #2a5c2a; color: #7fcf7f; }
-
-  .no-results {
-    text-align: center;
-    color: #555;
-    padding: 40px 0;
-    font-size: 0.95rem;
-  }
+  .no-results { text-align: center; color: #555; padding: 40px 0; font-size: 0.95rem; }
+  .no-results a { color: #7c6cf8; text-decoration: none; }
+  .no-results a:hover { text-decoration: underline; }
+  .db-note { text-align: center; font-size: 0.75rem; color: #444; margin-top: 30px; padding-bottom: 20px; }
+  .db-note a { color: #555; }
 </style>
 </head>
 <body>
-
 <header>
   <h1>Wii <span>Game ID</span> Lookup</h1>
-  <p>Search for a game and get the exact USB Loader GX file structure</p>
+  <p>Search a game &rarr; get the exact USB Loader GX file structure</p>
 </header>
-
 <div class="search-box">
   <input type="text" id="searchInput" placeholder="e.g. Mario Kart, Zelda, Smash Bros..." />
-  <button id="searchBtn" onclick="doSearch()">Search</button>
 </div>
-
 <div id="status"></div>
 <div class="results" id="results"></div>
+<div class="db-note">Offline database &middot; ~300 popular Wii titles &middot; <a href="https://www.gametdb.com/Wii" target="_blank">Full list at GameTDB &nearr;</a></div>
 
 <script>
-const PROXY = "https://api.allorigins.win/get?url=";
-const TDB_URL = "https://www.gametdb.com/games.php?system=wii&region=all&name=";
+const GAMES = [
+  ["Mario Kart Wii","RMCE01","US"],["Mario Kart Wii","RMCP01","PAL"],["Mario Kart Wii","RMCJ01","JP"],
+  ["New Super Mario Bros. Wii","SMNE01","US"],["New Super Mario Bros. Wii","SMNP01","PAL"],["New Super Mario Bros. Wii","SMNJ01","JP"],
+  ["Super Mario Galaxy","RMGE01","US"],["Super Mario Galaxy","RMGP01","PAL"],["Super Mario Galaxy","RMGJ01","JP"],
+  ["Super Mario Galaxy 2","SB4E01","US"],["Super Mario Galaxy 2","SB4P01","PAL"],["Super Mario Galaxy 2","SB4J01","JP"],
+  ["Super Paper Mario","SPPE01","US"],["Super Paper Mario","SPPP01","PAL"],["Super Paper Mario","SPPJ01","JP"],
+  ["Super Mario All-Stars","SXAE01","US"],["Super Mario All-Stars","SXAP01","PAL"],
+  ["Mario Party 8","RM8E01","US"],["Mario Party 8","RM8P01","PAL"],
+  ["Mario Party 9","SX4E01","US"],["Mario Party 9","SX4P01","PAL"],
+  ["Mario Strikers Charged","RSBE01","US"],["Mario Strikers Charged Football","RSBP41","PAL"],
+  ["Mario Super Sluggers","RYES01","US"],
+  ["Super Smash Bros. Brawl","RSBE01","US"],["Super Smash Bros. Brawl","RSBP01","PAL"],["Super Smash Bros. Brawl","RSBJ01","JP"],
+  ["The Legend of Zelda: Twilight Princess","RZDE01","US"],["The Legend of Zelda: Twilight Princess","RZDP01","PAL"],["The Legend of Zelda: Twilight Princess","RZDJ01","JP"],
+  ["The Legend of Zelda: Skyward Sword","SOUE01","US"],["The Legend of Zelda: Skyward Sword","SOUP01","PAL"],["The Legend of Zelda: Skyward Sword","SOUJ01","JP"],
+  ["Link's Crossbow Training","RZLE01","US"],["Link's Crossbow Training","RZLP01","PAL"],
+  ["Wii Sports","RSPE01","US"],["Wii Sports","RSPP01","PAL"],["Wii Sports","RSPJ01","JP"],
+  ["Wii Sports Resort","RZTE01","US"],["Wii Sports Resort","RZTP01","PAL"],["Wii Sports Resort","RZTJ01","JP"],
+  ["Wii Play","RHAE01","US"],["Wii Play","RHAP01","PAL"],
+  ["Wii Fit","RFIE01","US"],["Wii Fit","RFIP01","PAL"],
+  ["Wii Fit Plus","RFPE01","US"],["Wii Fit Plus","RFPP01","PAL"],
+  ["Wii Music","RWCE01","US"],["Wii Music","RWCP01","PAL"],
+  ["Wii Party","SWPE01","US"],["Wii Party","SWPP01","PAL"],
+  ["Metroid Prime 3: Corruption","RM3E01","US"],["Metroid Prime 3: Corruption","RM3P01","PAL"],
+  ["Metroid: Other M","SM8E01","US"],["Metroid: Other M","SM8P01","PAL"],
+  ["Metroid Prime Trilogy","R3ME01","US"],["Metroid Prime Trilogy","R3MP01","PAL"],
+  ["Kirby's Epic Yarn","KYPE01","US"],["Kirby's Epic Yarn","KYPP01","PAL"],
+  ["Kirby's Return to Dream Land","SOSE01","US"],["Kirby's Adventure Wii","SOSP01","PAL"],
+  ["Donkey Kong Country Returns","SF8E01","US"],["Donkey Kong Country Returns","SF8P01","PAL"],["Donkey Kong Country Returns","SF8J01","JP"],
+  ["Pokemon Battle Revolution","RPBE01","US"],["Pokemon Battle Revolution","RPBP01","PAL"],
+  ["Pokepark Wii: Pikachu's Adventure","SPKE01","US"],["Pokepark Wii: Pikachu's Adventure","SPKP01","PAL"],
+  ["Fire Emblem: Radiant Dawn","RE9E01","US"],["Fire Emblem: Radiant Dawn","RE9P01","PAL"],
+  ["Xenoblade Chronicles","SXCE01","US"],["Xenoblade Chronicles","SXCP01","PAL"],["Xenoblade Chronicles","SXCJ01","JP"],
+  ["The Last Story","SLSE01","US"],["The Last Story","SLSP01","PAL"],
+  ["Pandora's Tower","SPTE01","US"],["Pandora's Tower","SPTP01","PAL"],
+  ["Sonic Colors","SCOEA4","US"],["Sonic Colors","SCOE8P","PAL"],
+  ["Sonic and the Secret Rings","RSGE01","US"],["Sonic and the Secret Rings","RSGP41","PAL"],
+  ["Sonic and the Black Knight","SBKEA4","US"],["Sonic and the Black Knight","SBKE8P","PAL"],
+  ["Sonic Unleashed","RSUEA4","US"],["Sonic Unleashed","RSUE8P","PAL"],
+  ["Call of Duty: Modern Warfare 3","SX3E52","US"],["Call of Duty: Modern Warfare 3","SX3P52","PAL"],
+  ["Call of Duty: Black Ops","SJBE52","US"],["Call of Duty: Black Ops","SJBP52","PAL"],
+  ["Call of Duty: World at War","RCJE52","US"],["Call of Duty: World at War","RCJP52","PAL"],
+  ["Call of Duty 3","RC3E52","US"],["Call of Duty 3","RC3P52","PAL"],
+  ["Call of Duty: Modern Warfare - Reflex Edition","RCDE52","US"],["Call of Duty: Modern Warfare - Reflex Edition","RCDP52","PAL"],
+  ["GoldenEye 007","SX6E52","US"],["GoldenEye 007","SX6P52","PAL"],
+  ["The Conduit","RCDEA4","US"],["The Conduit","RCDE8P","PAL"],
+  ["Conduit 2","SC2EA4","US"],["Conduit 2","SC2E8P","PAL"],
+  ["Red Steel","REDEA4","US"],["Red Steel","REDE41","PAL"],
+  ["Red Steel 2","SQ2E41","US"],["Red Steel 2","SQ2P41","PAL"],
+  ["Guitar Hero III: Legends of Rock","RGHEA4","US"],["Guitar Hero III: Legends of Rock","RGHP52","PAL"],
+  ["Guitar Hero World Tour","RGTE52","US"],["Guitar Hero World Tour","RGTP52","PAL"],
+  ["Guitar Hero 5","R5GE52","US"],["Guitar Hero 5","R5GP52","PAL"],
+  ["Rock Band","SRBE69","US"],["Rock Band 2","SRCE69","US"],["Rock Band 3","SRAE69","US"],
+  ["Punch-Out!!","SPOE01","US"],["Punch-Out!!","SPOP01","PAL"],
+  ["No More Heroes","RNME01","US"],["No More Heroes","RNMP01","PAL"],
+  ["No More Heroes 2: Desperate Struggle","SUNEA4","US"],["No More Heroes 2: Desperate Struggle","SUNP01","PAL"],
+  ["MadWorld","RMWEA4","US"],["MadWorld","RMWE8P","PAL"],
+  ["Monster Hunter Tri","RUUE08","US"],["Monster Hunter Tri","RUUP08","PAL"],
+  ["Okami","ROME08","US"],["Okami","ROMP08","PAL"],
+  ["Muramasa: The Demon Blade","RMUE01","US"],["Muramasa: The Demon Blade","RMUP01","PAL"],
+  ["Tatsunoko vs. Capcom: Ultimate All-Stars","TUCEA4","US"],
+  ["Resident Evil 4: Wii Edition","RBHE08","US"],["Resident Evil 4: Wii Edition","RBHP08","PAL"],
+  ["Resident Evil: The Umbrella Chronicles","RBUE08","US"],["Resident Evil: The Umbrella Chronicles","RBUP08","PAL"],
+  ["Resident Evil: The Darkside Chronicles","SBDE08","US"],["Resident Evil: The Darkside Chronicles","SBDP08","PAL"],
+  ["Just Dance","SJDE41","US"],["Just Dance","SJDP41","PAL"],
+  ["Just Dance 2","SUDE41","US"],["Just Dance 2","SUDP41","PAL"],
+  ["Just Dance 3","SJ3E41","US"],["Just Dance 3","SJ3P41","PAL"],
+  ["Just Dance 4","SJ4E41","US"],["Just Dance 4","SJ4P41","PAL"],
+  ["Rayman Origins","SROE41","US"],["Rayman Origins","SROP41","PAL"],
+  ["Rayman Raving Rabbids","RRBE41","US"],["Rayman Raving Rabbids","RRBP41","PAL"],
+  ["Rayman Raving Rabbids 2","RR2E41","US"],["Rayman Raving Rabbids 2","RR2P41","PAL"],
+  ["Rabbids Go Home","SR3E41","US"],["Rabbids Go Home","SR3P41","PAL"],
+  ["LEGO Star Wars: The Complete Saga","RLWE78","US"],["LEGO Star Wars: The Complete Saga","RLWP78","PAL"],
+  ["LEGO Star Wars III: The Clone Wars","SL3EA4","US"],["LEGO Star Wars III: The Clone Wars","SL3P78","PAL"],
+  ["LEGO Batman","RLBE78","US"],["LEGO Batman","RLBP78","PAL"],
+  ["LEGO Batman 2: DC Super Heroes","SL2EA4","US"],["LEGO Batman 2: DC Super Heroes","SL2P78","PAL"],
+  ["LEGO Indiana Jones","RLJE78","US"],["LEGO Indiana Jones","RLJP78","PAL"],
+  ["LEGO Indiana Jones 2","SLIE78","US"],["LEGO Indiana Jones 2","SLIP78","PAL"],
+  ["LEGO Harry Potter: Years 1-4","SLHEA4","US"],["LEGO Harry Potter: Years 1-4","SLHP78","PAL"],
+  ["LEGO Pirates of the Caribbean","SLPEA4","US"],["LEGO Pirates of the Caribbean","SLPP78","PAL"],
+  ["Star Wars: The Force Unleashed","RFUE64","US"],["Star Wars: The Force Unleashed","RFUP64","PAL"],
+  ["Need for Speed: Carbon","RNFEA4","US"],["Need for Speed: Carbon","RNFP69","PAL"],
+  ["Need for Speed: The Run","SNRE69","US"],["Need for Speed: The Run","SNRP69","PAL"],
+  ["Need for Speed: Hot Pursuit","SNHE69","US"],["Need for Speed: Hot Pursuit","SNHP69","PAL"],
+  ["Need for Speed: Nitro","SNNE69","US"],["Need for Speed: Nitro","SNNP69","PAL"],
+  ["Disney Epic Mickey","DEPEA4","US"],["Disney Epic Mickey","DEPP4Q","PAL"],
+  ["Disney Epic Mickey 2: The Power of Two","SM8EA4","US"],["Disney Epic Mickey 2: The Power of Two","SM8P4Q","PAL"],
+  ["Skylanders: Spyro's Adventure","SSAE52","US"],["Skylanders: Spyro's Adventure","SSAP52","PAL"],
+  ["Skylanders: Giants","SGIE52","US"],["Skylanders: Giants","SGIP52","PAL"],
+  ["Boom Blox","RBBE69","US"],["Boom Blox","RBBP69","PAL"],
+  ["Boom Blox Bash Party","SBJE69","US"],["Boom Blox Bash Party","SBJP69","PAL"],
+  ["Zack and Wiki: Quest for Barbaros' Treasure","RZWE08","US"],["Zack and Wiki: Quest for Barbaros' Treasure","RZWP08","PAL"],
+  ["WarioWare: Smooth Moves","RWWE01","US"],["WarioWare: Smooth Moves","RWWP01","PAL"],
+  ["Wario Land: Shake It!","RWLE01","US"],["Wario Land: The Shake Dimension","RWLP01","PAL"],
+  ["Excite Truck","ETUE01","US"],["Excite Truck","ETUP01","PAL"],
+  ["Animal Crossing: City Folk","RUUE01","US"],["Animal Crossing: Let's Go to the City","RUUP01","PAL"],
+  ["The House of the Dead: Overkill","RHOEA4","US"],["The House of the Dead: Overkill","RHOE8P","PAL"],
+  ["Ghostbusters: The Video Game","SGBE7D","US"],["Ghostbusters: The Video Game","SGBP7D","PAL"],
+  ["Dragon Ball Z: Budokai Tenkaichi 3","RDBEA4","US"],["Dragon Ball Z: Budokai Tenkaichi 3","RDBE8P","PAL"],
+  ["Tales of Symphonia: Dawn of the New World","ST4E01","US"],["Tales of Symphonia: Dawn of the New World","ST4P01","PAL"],
+  ["Castlevania Judgment","RCVE01","US"],["Castlevania Judgment","RCVP01","PAL"],
+  ["Harvest Moon: Tree of Tranquility","RHME01","US"],
+  ["Harvest Moon: Animal Parade","RHAE01","US"],
+  ["Little King's Story","SLKE18","US"],["Little King's Story","SLKP18","PAL"],
+  ["Sin and Punishment: Star Successor","SS8E01","US"],["Sin and Punishment: Star Successor","SS8P01","PAL"],
+  ["Trauma Center: Second Opinion","RUSE01","US"],["Trauma Center: Second Opinion","RUSP01","PAL"],
+  ["de Blob","RDBE78","US"],["de Blob","RDBP78","PAL"],
+  ["Endless Ocean","RNOE01","US"],["Endless Ocean","RNOP01","PAL"],
+  ["Endless Ocean: Blue World","RUOE01","US"],["Endless Ocean: Blue World","RUOP01","PAL"],
+  ["Go Vacation","SVCE01","US"],
+  ["Batman: Arkham City - Armored Edition","SBMEA4","US"],["Batman: Arkham City - Armored Edition","SBMP52","PAL"],
+  ["Cooking Mama: Cook Off","RCME01","US"],["Cooking Mama: Cook Off","RCMP01","PAL"],
+  ["Prince of Persia: The Forgotten Sands","SP5EUB","US"],["Prince of Persia: The Forgotten Sands","SP5PUB","PAL"],
+  ["Assassin's Creed III","SC3EUB","US"],["Assassin's Creed III","SC3PUB","PAL"],
+  ["FlingSmash","SFSE01","US"],["FlingSmash","SFSP01","PAL"],
+  ["Fragile Dreams: Farewell Ruins of the Moon","SFDE01","US"],["Fragile Dreams: Farewell Ruins of the Moon","SFDP01","PAL"],
+  ["Klonoa","RKLE01","US"],["Klonoa","RKLP01","PAL"],
+  ["Madden NFL 11","SNFE69","US"],["Madden NFL 10","SM4E69","US"],
+  ["FIFA 11","SFIE09","US"],["FIFA 11","SFIP09","PAL"],
+  ["FIFA 12","SF2E09","US"],["FIFA 12","SF2P09","PAL"],
+  ["NBA 2K10","S2KE54","US"],["NBA 2K11","S21E54","US"],
+  ["New Play Control! Pikmin","RPVP01","PAL"],["New Play Control! Pikmin 2","RUCP01","PAL"],
+];
 
-async function doSearch() {
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) return;
-
-  const btn = document.getElementById('searchBtn');
+function doSearch() {
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
   const status = document.getElementById('status');
   const results = document.getElementById('results');
+  if (!query) { results.innerHTML = ''; status.textContent = ''; return; }
 
-  btn.disabled = true;
-  btn.textContent = 'Searching...';
-  status.textContent = 'Fetching from GameTDB...';
-  results.innerHTML = '';
-
-  try {
-    const encoded = encodeURIComponent(TDB_URL + encodeURIComponent(query));
-    const res = await fetch(PROXY + encoded);
-    const json = await res.json();
-    const html = json.contents;
-
-    const games = parseGames(html);
-
-    if (games.length === 0) {
-      status.textContent = '';
-      results.innerHTML = `<div class="no-results">No games found for "<strong>${query}</strong>". Try a shorter search term.</div>`;
-    } else {
-      status.textContent = `Found ${games.length} result${games.length !== 1 ? 's' : ''}`;
-      results.innerHTML = games.map(g => buildCard(g)).join('');
-    }
-  } catch (e) {
-    status.textContent = 'Error fetching results. Try again.';
-    console.error(e);
-  }
-
-  btn.disabled = false;
-  btn.textContent = 'Search';
-}
-
-function parseGames(html) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const rows = doc.querySelectorAll('table.gamelist tr');
-  const games = [];
-
-  rows.forEach(row => {
-    const cells = row.querySelectorAll('td');
-    if (cells.length < 3) return;
-
-    const idCell = cells[0]?.textContent?.trim();
-    const nameCell = cells[1]?.textContent?.trim();
-    const regionCell = cells[2]?.textContent?.trim();
-
-    if (idCell && nameCell && idCell.length >= 4) {
-      games.push({ id: idCell, name: nameCell, region: regionCell || '' });
-    }
+  const seen = new Set();
+  const matches = GAMES.filter(g => {
+    if (!g[0].toLowerCase().includes(query)) return false;
+    if (seen.has(g[1])) return false;
+    seen.add(g[1]);
+    return true;
   });
 
-  return games.slice(0, 15);
+  if (matches.length === 0) {
+    status.textContent = '';
+    const enc = encodeURIComponent(query);
+    results.innerHTML = `<div class="no-results">No results for "<strong>${query}</strong>".<br><br>Try searching on <a href="https://www.gametdb.com/Wii/List?search=${enc}" target="_blank">GameTDB directly &nearr;</a></div>`;
+  } else {
+    status.textContent = `${matches.length} result${matches.length !== 1 ? 's' : ''} found`;
+    results.innerHTML = matches.map(buildCard).join('');
+  }
 }
 
-function buildCard(game) {
-  const safe = game.name.replace(/[\/\\:*?"<>|]/g, '');
-  const folder = `${safe} [${game.id}]`;
+function buildCard([name, id, region]) {
+  const safe = name.replace(/[\/\\:*?"<>|]/g, '');
+  const folder = `${safe} [${id}]`;
   const folderPath = `wbfs/${folder}/`;
   const filePath = `wbfs/${folder}/${folder}.wbfs`;
-
-  return `
-    <div class="card">
-      <div class="card-top">
-        <div>
-          <div class="game-title">${game.name}</div>
-          <div class="game-meta">Region: ${game.region}</div>
-        </div>
-        <div class="game-id-badge">${game.id}</div>
-      </div>
-
-      <div class="label">Folder</div>
-      <div class="path-box">
-        <span class="path-text">${folderPath}</span>
-        <button class="copy-btn" onclick="copyText(this, '${folderPath}')">Copy</button>
-      </div>
-
-      <div class="label">File Path</div>
-      <div class="path-box">
-        <span class="path-text">${filePath}</span>
-        <button class="copy-btn" onclick="copyText(this, '${filePath}')">Copy</button>
-      </div>
+  return `<div class="card">
+    <div class="card-top">
+      <div><div class="game-title">${name}</div><div class="game-meta">Region: ${region}</div></div>
+      <div class="game-id-badge">${id}</div>
     </div>
-  `;
+    <div class="label">Folder</div>
+    <div class="path-box"><span class="path-text">${folderPath}</span><button class="copy-btn" onclick="cp(this,'${folderPath.replace(/'/g,"\\'")}')">Copy</button></div>
+    <div class="label">File Path</div>
+    <div class="path-box"><span class="path-text">${filePath}</span><button class="copy-btn" onclick="cp(this,'${filePath.replace(/'/g,"\\'")}')">Copy</button></div>
+  </div>`;
 }
 
-function copyText(btn, text) {
+function cp(btn, text) {
   navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = 'Copy';
-      btn.classList.remove('copied');
-    }, 2000);
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
   });
 }
 
-document.getElementById('searchInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doSearch();
-});
+document.getElementById('searchInput').addEventListener('input', doSearch);
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
 </script>
-
 </body>
 </html>
