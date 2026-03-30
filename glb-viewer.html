@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLB Viewer</title>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --border: #1e1e2e;
+    --accent: #7df9aa;
+    --accent2: #a78bfa;
+    --text: #e8e8f0;
+    --muted: #555570;
+    --panel: #0f0f1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 26px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.9);
+    flex-shrink: 0;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; }
+  .logo span { color: var(--accent); }
+  .tag { font-size: 0.62rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+
+  .main { position: relative; z-index: 1; flex: 1; display: flex; overflow: hidden; }
+
+  /* Drop zone */
+  #drop-zone {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 5; transition: opacity 0.35s;
+  }
+  #drop-zone.hidden { opacity: 0; pointer-events: none; }
+
+  .drop-box {
+    border: 2px dashed var(--muted);
+    border-radius: 14px;
+    padding: 56px 72px;
+    text-align: center;
+    background: rgba(15,15,26,0.9);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .drop-box.drag-over { border-color: var(--accent); background: rgba(125,249,170,0.05); }
+  .drop-icon { font-size: 3rem; display: block; margin-bottom: 16px; }
+  .drop-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+  .drop-sub { font-size: 0.7rem; color: var(--muted); margin-bottom: 22px; }
+  .drop-btn {
+    display: inline-block; padding: 10px 28px;
+    background: var(--accent); color: #000;
+    border-radius: 6px; font-family: 'Space Mono', monospace;
+    font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; border: none;
+    transition: background 0.2s;
+  }
+  .drop-btn:hover { background: #5deea0; }
+
+  /* Canvas */
+  #canvas-wrap { flex: 1; position: relative; overflow: hidden; }
+  #three-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  #three-canvas:active { cursor: grabbing; }
+
+  /* Sidebar */
+  #sidebar {
+    width: 230px; min-width: 230px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 18px 14px; gap: 20px;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+    position: absolute; right: 0; top: 0; bottom: 0; z-index: 2;
+  }
+  #sidebar.visible { transform: translateX(0); position: relative; }
+
+  .ctrl-label { font-size: 0.58rem; letter-spacing: 0.17em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .ctrl-group { display: flex; flex-direction: column; }
+  .slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .slider-axis { font-size: 0.62rem; color: var(--accent2); width: 14px; flex-shrink: 0; font-weight: 700; }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    flex: 1; height: 3px;
+    background: var(--border); border-radius: 2px;
+    outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); cursor: pointer;
+    box-shadow: 0 0 8px rgba(125,249,170,0.5);
+  }
+  .slider-val { font-size: 0.62rem; color: var(--text); width: 38px; text-align: right; flex-shrink: 0; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .toggle-label { font-size: 0.7rem; color: var(--text); }
+  .toggle { position: relative; width: 36px; height: 20px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 20px; cursor: pointer; transition: background 0.2s; }
+  .toggle input:checked + .toggle-track { background: var(--accent); }
+  .toggle-track::after { content: ''; position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+  .toggle input:checked + .toggle-track::after { transform: translateX(16px); }
+
+  .divider { height: 1px; background: var(--border); }
+  .file-info { font-size: 0.62rem; color: var(--muted); word-break: break-all; line-height: 1.6; }
+  .file-name { color: var(--accent); font-weight: 700; font-size: 0.72rem; margin-bottom: 4px; display: block; }
+
+  .reset-btn {
+    margin-top: auto; padding: 9px;
+    background: transparent; border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 0.68rem;
+    cursor: pointer; text-align: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* Loader */
+  #loader {
+    position: absolute; inset: 0;
+    background: rgba(10,10,15,0.85);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; z-index: 10;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  #loader.visible { opacity: 1; pointer-events: all; }
+  .spinner { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.75s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: #ff4d6d; color: #fff;
+    padding: 10px 20px; border-radius: 6px;
+    font-size: 0.72rem; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s; z-index: 100;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  #hint { position: absolute; bottom: 14px; left: 14px; font-size: 0.58rem; color: var(--muted); z-index: 3; display: none; }
+  #hint.visible { display: block; }
+  #file-input { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GLB<span>.</span>VIEW</div>
+  <div class="tag">3D Model Inspector</div>
+</header>
+
+<div class="main">
+  <div id="drop-zone">
+    <div class="drop-box" id="drop-box">
+      <span class="drop-icon">⬡</span>
+      <div class="drop-title">Drop your GLB here</div>
+      <div class="drop-sub">.glb files · Draco compressed OK</div>
+      <button class="drop-btn" id="browse-btn">Choose File</button>
+    </div>
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="three-canvas"></canvas>
+    <div id="loader"><div class="spinner"></div><div class="loader-text">LOADING MODEL...</div></div>
+    <div id="hint">Drag to orbit &nbsp;·&nbsp; Scroll to zoom</div>
+  </div>
+
+  <div id="sidebar">
+    <div class="ctrl-group">
+      <div class="ctrl-label">Rotation</div>
+      <div class="slider-row">
+        <span class="slider-axis">Y</span>
+        <input type="range" id="rot-y" min="-180" max="180" value="30" step="1">
+        <span class="slider-val" id="rot-y-val">30°</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-axis">X</span>
+        <input type="range" id="rot-x" min="-89" max="89" value="15" step="1">
+        <span class="slider-val" id="rot-x-val">15°</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-axis">Z</span>
+        <input type="range" id="rot-z" min="-180" max="180" value="0" step="1">
+        <span class="slider-val" id="rot-z-val">0°</span>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Auto-rotate</span>
+        <label class="toggle">
+          <input type="checkbox" id="auto-rotate">
+          <div class="toggle-track"></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">Zoom</div>
+      <div class="slider-row">
+        <span class="slider-axis" style="color:var(--accent)">+</span>
+        <input type="range" id="zoom" min="20" max="400" value="100" step="1">
+        <span class="slider-val" id="zoom-val">100%</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">Lighting</div>
+      <div class="slider-row">
+        <span class="slider-axis" style="color:#fbbf24">☀</span>
+        <input type="range" id="light" min="0" max="300" value="100" step="1">
+        <span class="slider-val" id="light-val">100%</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="ctrl-group">
+      <div class="ctrl-label">File</div>
+      <div class="file-info">
+        <span class="file-name" id="fname">—</span>
+        <span id="fsize">—</span>
+      </div>
+    </div>
+
+    <button class="reset-btn" id="reset-btn">↺ Reset View</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<input type="file" id="file-input" accept=".glb">
+
+<script>
+(function () {
+  var canvas   = document.getElementById('three-canvas');
+  var wrap     = document.getElementById('canvas-wrap');
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.outputEncoding      = THREE.sRGBEncoding;
+  renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.setClearColor(0x0a0a0f, 1);
+
+  var scene  = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(45, 1, 0.001, 2000);
+
+  var ambient   = new THREE.AmbientLight(0xffffff, 0.5);   scene.add(ambient);
+  var dirLight  = new THREE.DirectionalLight(0xffffff, 1.2); dirLight.position.set(3,6,4);   scene.add(dirLight);
+  var backLight = new THREE.DirectionalLight(0xa78bfa, 0.4); backLight.position.set(-3,-2,-4); scene.add(backLight);
+  var fillLight = new THREE.DirectionalLight(0x7df9aa, 0.25); fillLight.position.set(0,-4,2);  scene.add(fillLight);
+
+  function resize() {
+    var w = wrap.clientWidth, h = wrap.clientHeight || 1;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // State
+  var model = null, autoRotate = false;
+  var orbitX = 15, orbitY = 30, rotZ = 0, zoomFactor = 1.0, baseDist = 3;
+
+  // Mouse orbit
+  var dragging = false, lmx = 0, lmy = 0;
+  canvas.addEventListener('mousedown', function(e){ dragging=true; lmx=e.clientX; lmy=e.clientY; });
+  window.addEventListener('mouseup',   function(){ dragging=false; });
+  window.addEventListener('mousemove', function(e){
+    if (!dragging || !model) return;
+    orbitY += (e.clientX-lmx)*0.4; orbitX += (e.clientY-lmy)*0.4;
+    orbitX = Math.max(-89,Math.min(89,orbitX)); lmx=e.clientX; lmy=e.clientY;
+  });
+
+  // Touch orbit
+  var touching=false, ltx=0, lty=0;
+  canvas.addEventListener('touchstart', function(e){ if(e.touches.length===1){touching=true;ltx=e.touches[0].clientX;lty=e.touches[0].clientY;} });
+  canvas.addEventListener('touchend',   function(){ touching=false; });
+  canvas.addEventListener('touchmove',  function(e){
+    if(!touching||!model||e.touches.length!==1) return;
+    orbitY+=(e.touches[0].clientX-ltx)*0.4; orbitX+=(e.touches[0].clientY-lty)*0.4;
+    orbitX=Math.max(-89,Math.min(89,orbitX)); ltx=e.touches[0].clientX; lty=e.touches[0].clientY;
+    e.preventDefault();
+  },{passive:false});
+
+  // Scroll zoom
+  canvas.addEventListener('wheel', function(e){
+    if(!model) return;
+    zoomFactor *= e.deltaY>0 ? 1.08 : 0.93;
+    zoomFactor = Math.max(0.1,Math.min(8,zoomFactor));
+    syncZoomUI(); e.preventDefault();
+  },{passive:false});
+
+  // Render loop
+  function animate() {
+    requestAnimationFrame(animate);
+    if (model) {
+      if (autoRotate) orbitY += 0.5;
+      var phi=THREE.Math.degToRad(orbitX), theta=THREE.Math.degToRad(-orbitY), d=baseDist*zoomFactor;
+      camera.position.set(d*Math.cos(phi)*Math.sin(theta), d*Math.sin(phi), d*Math.cos(phi)*Math.cos(theta));
+      camera.lookAt(0,0,0);
+      if (dragging||touching||autoRotate) {
+        var yv=Math.round(orbitY);
+        setVal('rot-y','rot-y-val',Math.round(yv),'°');
+        setVal('rot-x','rot-x-val',Math.round(orbitX),'°');
+      }
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  function setVal(sliderId, labelId, v, unit) {
+    document.getElementById(sliderId).value = v;
+    document.getElementById(labelId).textContent = v + unit;
+  }
+
+  // Sliders
+  document.getElementById('rot-y').addEventListener('input', function(){ orbitY=+this.value; document.getElementById('rot-y-val').textContent=Math.round(orbitY)+'°'; });
+  document.getElementById('rot-x').addEventListener('input', function(){ orbitX=+this.value; document.getElementById('rot-x-val').textContent=Math.round(orbitX)+'°'; });
+  document.getElementById('rot-z').addEventListener('input', function(){
+    rotZ=+this.value; document.getElementById('rot-z-val').textContent=Math.round(rotZ)+'°';
+    if(model) model.rotation.z=THREE.Math.degToRad(rotZ);
+  });
+  document.getElementById('zoom').addEventListener('input', function(){
+    zoomFactor=100/+this.value; document.getElementById('zoom-val').textContent=Math.round(+this.value)+'%';
+  });
+  document.getElementById('light').addEventListener('input', function(){
+    var v=+this.value/100; ambient.intensity=v*0.5; dirLight.intensity=v*1.2;
+    document.getElementById('light-val').textContent=Math.round(+this.value)+'%';
+  });
+  document.getElementById('auto-rotate').addEventListener('change', function(){ autoRotate=this.checked; });
+  document.getElementById('reset-btn').addEventListener('click', function(){
+    orbitX=15; orbitY=-30; rotZ=0; zoomFactor=1;
+    setVal('rot-y','rot-y-val',30,'°'); setVal('rot-x','rot-x-val',15,'°');
+    setVal('rot-z','rot-z-val',0,'°'); setVal('zoom','zoom-val',100,'%');
+    if(model) model.rotation.z=0;
+  });
+
+  function syncZoomUI() {
+    var pct=Math.round(100/zoomFactor); pct=Math.max(20,Math.min(400,pct));
+    setVal('zoom','zoom-val',pct,'%');
+  }
+
+  // ── GLTFLoader via object URL (avoids parse() ArrayBuffer issues) ─────────
+  var dracoLoader = new THREE.DRACOLoader();
+  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+
+  var gltfLoader = new THREE.GLTFLoader();
+  gltfLoader.setDRACOLoader(dracoLoader);
+
+  var currentObjectURL = null;
+
+  function loadGLB(file) {
+    showLoader(true);
+    if (model) { scene.remove(model); model = null; }
+
+    // Revoke previous blob URL
+    if (currentObjectURL) { URL.revokeObjectURL(currentObjectURL); currentObjectURL = null; }
+
+    // Create a blob URL from the File — this lets GLTFLoader.load() handle it natively
+    currentObjectURL = URL.createObjectURL(file);
+
+    gltfLoader.load(
+      currentObjectURL,
+      function (gltf) {
+        model = gltf.scene;
+
+        var box    = new THREE.Box3().setFromObject(model);
+        var center = box.getCenter(new THREE.Vector3());
+        var size   = box.getSize(new THREE.Vector3());
+        var maxDim = Math.max(size.x, size.y, size.z) || 1;
+        var sc     = 2.0 / maxDim;
+        model.scale.setScalar(sc);
+        model.position.copy(center.multiplyScalar(-sc));
+        scene.add(model);
+
+        baseDist=3; zoomFactor=1; orbitX=15; orbitY=-30; rotZ=0;
+        setVal('rot-y','rot-y-val',30,'°'); setVal('rot-x','rot-x-val',15,'°');
+        setVal('rot-z','rot-z-val',0,'°'); setVal('zoom','zoom-val',100,'%');
+
+        showLoader(false);
+        document.getElementById('drop-zone').classList.add('hidden');
+        document.getElementById('sidebar').classList.add('visible');
+        document.getElementById('hint').classList.add('visible');
+        document.getElementById('fname').textContent = file.name;
+        document.getElementById('fsize').textContent = fmtBytes(file.size);
+      },
+      undefined, // progress callback (unused)
+      function (err) {
+        showLoader(false);
+        console.error('GLTFLoader error:', err);
+        showToast('Load failed — is this a valid .glb file?');
+      }
+    );
+  }
+
+  function showLoader(v) { document.getElementById('loader').classList.toggle('visible', v); }
+
+  function fmtBytes(b) {
+    if (b<1024) return b+' B';
+    if (b<1048576) return (b/1024).toFixed(1)+' KB';
+    return (b/1048576).toFixed(1)+' MB';
+  }
+
+  function showToast(msg) {
+    var t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); },3500);
+  }
+
+  function handleFile(file) {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.glb')) { showToast('Please choose a .glb file'); return; }
+    loadGLB(file);
+  }
+
+  document.getElementById('file-input').addEventListener('change', function(e){
+    if (e.target.files.length) handleFile(e.target.files[0]);
+    this.value='';
+  });
+  document.getElementById('browse-btn').addEventListener('click', function(e){
+    e.stopPropagation(); document.getElementById('file-input').click();
+  });
+  document.getElementById('drop-box').addEventListener('click', function(){
+    document.getElementById('file-input').click();
+  });
+
+  var dropBox=document.getElementById('drop-box');
+  document.body.addEventListener('dragover',  function(e){ e.preventDefault(); dropBox.classList.add('drag-over'); });
+  document.body.addEventListener('dragleave', function(){  dropBox.classList.remove('drag-over'); });
+  document.body.addEventListener('drop', function(e){
+    e.preventDefault(); dropBox.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+})();
+</script>
+</body>
+</html>
