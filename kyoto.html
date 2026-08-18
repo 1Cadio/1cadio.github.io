@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Cosmology of Kyoto</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- js-dos v8 CSS -->
+<link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css" />
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+  }
+
+  #dos-container {
+    width: 100vw;
+    height: 100vh;
+  }
+</style>
+</head>
+<body>
+
+<div id="dos-container"></div>
+
+<!-- js-dos v8 JS -->
+<script src="https://v8.js-dos.com/latest/js-dos.js"></script>
+
+<script>
+  const bundleUrl = "cosmology.jsdos";
+
+  Dos(document.getElementById("dos-container"), {
+    url: bundleUrl,
+    theme: "dark",
+    backend: "dosboxX",
+    mouseCapture: true,
+  });
+</script>
+
+</body>
+</html>
