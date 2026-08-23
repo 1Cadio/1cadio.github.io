@@ -5,17 +5,18 @@
     "description": "My legal NDS games collection for 3DS",
     "url": "https://1cadio.github.io/cadio.unistore",
     "file": "cadio.unistore",
-    "revision": 5,
+    "revision": 7,
     "version": 3
   },
   "storeContent": [
     {
       "info": {
-        "title": "Sonic Classic Collection",
-        "author": "SEGA",
-        "description": "Collection of classic Genesis Sonic titles built for Nintendo DS.",
+        "title": "Trauma Center - Under the Knife",
+        "author": "Atlus",
+        "description": "Surgical simulation puzzle game.",
         "category": [
-          "Platformer"
+          "Simulation",
+          "Puzzle"
         ],
         "console": [
           "NDS"
@@ -29,8 +30,17 @@
         },
         {
           "type": "downloadFile",
-          "file": "https://files.catbox.moe/a4ie39.nds",
-          "output": "sdmc:/roms/nds/Sonic Classic Collection.nds"
+          "file": "https://1cadio.github.io/Trauma%20Center%20-%20Under%20the%20Knife.zip",
+          "output": "sdmc:/roms/nds/trauma.zip"
+        },
+        {
+          "type": "extractFile",
+          "file": "sdmc:/roms/nds/trauma.zip",
+          "output": "sdmc:/roms/nds/"
+        },
+        {
+          "type": "deleteFile",
+          "file": "sdmc:/roms/nds/trauma.zip"
         }
       ]
     }
