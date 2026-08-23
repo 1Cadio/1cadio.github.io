@@ -5,17 +5,17 @@
     "description": "My legal NDS games collection for 3DS",
     "url": "https://1cadio.github.io/cadio.unistore",
     "file": "cadio.unistore",
-    "revision": 3,
+    "revision": 5,
     "version": 3
   },
   "storeContent": [
     {
       "info": {
-        "title": "Tetris DS",
-        "author": "Nintendo",
-        "description": "Classic puzzle action featuring retro Nintendo themes.",
+        "title": "Sonic Classic Collection",
+        "author": "SEGA",
+        "description": "Collection of classic Genesis Sonic titles built for Nintendo DS.",
         "category": [
-          "Puzzle"
+          "Platformer"
         ],
         "console": [
           "NDS"
@@ -29,17 +29,8 @@
         },
         {
           "type": "downloadFile",
-          "file": "https://files.catbox.moe/4rxb6x.zip",
-          "output": "sdmc:/roms/nds/temp_tetris.zip"
-        },
-        {
-          "type": "extractFile",
-          "file": "sdmc:/roms/nds/temp_tetris.zip",
-          "output": "sdmc:/roms/nds/"
-        },
-        {
-          "type": "deleteFile",
-          "file": "sdmc:/roms/nds/temp_tetris.zip"
+          "file": "https://files.catbox.moe/a4ie39.nds",
+          "output": "sdmc:/roms/nds/Sonic Classic Collection.nds"
         }
       ]
     }
