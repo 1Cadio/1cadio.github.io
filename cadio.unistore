@@ -5,6 +5,7 @@
     "description": "My legal NDS games collection for 3DS",
     "url": "https://1cadio.github.io/cadio.unistore",
     "file": "cadio.unistore",
+    "revision": 1,
     "version": 3
   },
   "storeContent": [
