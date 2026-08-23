@@ -1,0 +1,42 @@
+{
+  "storeInfo": {
+    "title": "My NDS Store",
+    "author": "Your Name",
+    "description": "My legal NDS games collection",
+    "url": "https://raw.githubusercontent.com/username/repo/main/my-store.unistore",
+    "file": "my-store.unistore",
+    "version": 3
+  },
+  "storeContent": [
+    {
+      "info": {
+        "title": "Tetris DS",
+        "author": "Nintendo",
+        "description": "Classic puzzle action with classic Nintendo themes.",
+        "category": ["Puzzle"],
+        "console": ["NDS"],
+        "version": "1.0"
+      },
+      "Download Game": [
+        {
+          "type": "mkdir",
+          "path": "sdmc:/roms/nds"
+        },
+        {
+          "type": "downloadFile",
+          "file": "https://archive.org/download/nds-collection/Tetris%20DS.zip",
+          "output": "sdmc:/temp_tetris.zip"
+        },
+        {
+          "type": "extractFile",
+          "file": "sdmc:/temp_tetris.zip",
+          "output": "sdmc:/roms/nds/"
+        },
+        {
+          "type": "deleteFile",
+          "file": "sdmc:/temp_tetris.zip"
+        }
+      ]
+    }
+  ]
+}
