@@ -1,10 +1,10 @@
 {
   "storeInfo": {
-    "title": "My NDS Store",
-    "author": "Your Name",
-    "description": "My legal NDS games collection",
-    "url": "https://raw.githubusercontent.com/username/repo/main/my-store.unistore",
-    "file": "my-store.unistore",
+    "title": "Cadio's Store",
+    "author": "Cadio",
+    "description": "My legal NDS games collection for 3DS",
+    "url": "https://1cadio.github.io/cadio.unistore",
+    "file": "cadio.unistore",
     "version": 3
   },
   "storeContent": [
@@ -12,9 +12,13 @@
       "info": {
         "title": "Tetris DS",
         "author": "Nintendo",
-        "description": "Classic puzzle action with classic Nintendo themes.",
-        "category": ["Puzzle"],
-        "console": ["NDS"],
+        "description": "Classic puzzle action featuring retro Nintendo themes.",
+        "category": [
+          "Puzzle"
+        ],
+        "console": [
+          "NDS"
+        ],
         "version": "1.0"
       },
       "Download Game": [
@@ -35,6 +39,40 @@
         {
           "type": "deleteFile",
           "file": "sdmc:/temp_tetris.zip"
+        }
+      ]
+    },
+    {
+      "info": {
+        "title": "Sonic Classic Collection",
+        "author": "SEGA",
+        "description": "Collection of classic Genesis Sonic titles built for Nintendo DS.",
+        "category": [
+          "Platformer"
+        ],
+        "console": [
+          "NDS"
+        ],
+        "version": "1.0"
+      },
+      "Download Game": [
+        {
+          "type": "mkdir",
+          "path": "sdmc:/roms/nds"
+        },
+        {
+          "type": "downloadFile",
+          "file": "https://archive.org/download/nds-collection/Sonic%20Classic%20Collection%20%28DSi%20Enhanced%29.zip",
+          "output": "sdmc:/temp_sonic.zip"
+        },
+        {
+          "type": "extractFile",
+          "file": "sdmc:/temp_sonic.zip",
+          "output": "sdmc:/roms/nds/"
+        },
+        {
+          "type": "deleteFile",
+          "file": "sdmc:/temp_sonic.zip"
         }
       ]
     }
