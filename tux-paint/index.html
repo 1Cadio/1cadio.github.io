@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tux Paint</title>
+  <style>
+    html, body { height: 100%; margin: 0; background: #111; }
+    body { display: grid; place-items: center; overflow: hidden; }
+    #loading {
+      position: fixed; inset: 0; display: grid; place-items: center;
+      color: #eee; font: 16px system-ui, sans-serif; pointer-events: none;
+    }
+    canvas { max-width: 100vw; max-height: 100vh; width: auto; height: auto; image-rendering: auto; background: #222; }
+  </style>
+</head>
+<body>
+  <div id="loading" role="status">Loading Tux Paint...</div>
+  <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+  <script>
+    var loading = document.getElementById("loading");
+    var Module = {
+      canvas: document.getElementById("canvas"),
+      print: function (text) { console.log(text); loading.textContent = text; },
+      printErr: function (text) { console.error(text); loading.textContent = text; },
+      setStatus: function (text) {
+        document.title = text || "Tux Paint";
+        if (text === "Running...") loading.remove();
+        else if (text) loading.textContent = text;
+        else loading.remove();
+      },
+      onAbort: function (reason) {
+        loading.textContent = "Tux Paint could not start: " + reason;
+        loading.style.color = "#ffb4ab";
+      },
+      onRuntimeInitialized: function () {},
+      preRun: []
+    };
+  </script>
+  <script src="tuxpaint.js"></script>
+</body>
+</html>
